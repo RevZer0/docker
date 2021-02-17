@@ -20,13 +20,16 @@ RUN set -x \
     && dpkg -i manticore-repo.noarch.deb \
     && apt-key adv --fetch-keys 'https://repo.manticoresearch.com/GPG-KEY-manticore' && apt update && apt install -y manticore \
     && mkdir -p /var/run/manticore && mkdir -p /var/lib/manticore/replication \
-    && apt-get update && apt install -y  libexpat1 libodbc1 libpq5 openssl libcrypto++6 libmysqlclient20 mysql-client \
-    && apt-get purge -y --auto-remove ca-certificates wget \
+    && apt-get update && apt install -y apt-transport-https libexpat1 libodbc1 libpq5 openssl libcrypto++6 libmysqlclient20 mysql-client curl \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev \
+    && apt-get purge -y --auto-remove ca-certificates wget curl\
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/bin/mariabackup /usr/bin/mysqldump /usr/bin/mysqlslap /usr/bin/mysqladmin /usr/bin/mysqlimport /usr/bin/mysqlshow /usr/bin/mbstream /usr/bin/mysql_waitpid /usr/bin/innotop /usr/bin/mysqlaccess /usr/bin/mytop /usr/bin/mysqlreport /usr/bin/mysqldumpslow /usr/bin/mysql_find_rows /usr/bin/mysql_fix_extensions /usr/bin/mysql_embedded /usr/bin/mysqlcheck \
     && rm -f /usr/bin/spelldump /usr/bin/wordbreaker \
     && mkdir -p /var/run/mysqld/ && chown manticore:manticore /var/run/mysqld/ \
-    && echo "\n[mysql]\nsilent\nwait\ntable\n" >> /etc/mysql/my.cnf
+    && echo "\n[mysql]\nsilent\nwait\ntable\n" >> /etc/mysql/my.cnfi \
 
 COPY manticore.conf /etc/manticoresearch/
 COPY sandbox.sql /sandbox.sql
